@@ -23,25 +23,17 @@ export const createNewTodo = asyncHandler(async (req, res) => {
   return res.status(201).json({ data: newTodo });
 });
 
-export const updateTodo = async (req, res, next) => {
+export const updateTodo = asyncHandler(async (req, res) => {
   const param = req.params.id;
   const body = req.body;
 
-  try {
-    await updateTodoService(Number(param), body);
-    res.status(200).json({ message: `ID: ${param} successfully updated` });
-  } catch (error) {
-    next(error);
-  }
-};
+  await updateTodoService(Number(param), body);
+  res.status(200).json({ message: `ID: ${param} successfully updated` });
+});
 
-export const deleteTodo = async (req, res, next) => {
+export const deleteTodo = asyncHandler(async (req, res) => {
   const param = req.params.id;
 
-  try {
-    await deleteTodoService(Number(param));
-    res.status(200).json({ message: `Todo successfully deleted` });
-  } catch (error) {
-    next(error);
-  }
-};
+  await deleteTodoService(Number(param));
+  res.status(200).json({ message: `Todo successfully deleted` });
+});
