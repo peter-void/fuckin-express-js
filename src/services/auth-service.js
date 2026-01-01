@@ -51,9 +51,53 @@ export const loginService = async ({ email, password }) => {
     throwHttpError(401, "Invalid Credentials");
   }
 
-  const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, {
-    expiresIn: "50m",
+  const accessToken = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "10m",
+  });
+  const refreshToken = crypto.randomUUID();
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7);
+
+  await pool.query(
+    `
+      INSERT INTO refresh_token (user_id, token, expires_at)
+      VALUES ($1, $2, $3)
+    `,
+    [user.id, refreshToken, expiresAt]
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
+export const refreshTokenService = async (refreshToken) => {
+  const result = await pool.query(
+    `
+    SELECT * FROM refresh_token
+    WHERE token = $1
+    `,
+    [refreshToken]
+  );
+
+  if (result.rowCount === 0) {
+    throwHttpError(401, "Invalid refresh token");
+  }
+
+  const session = result.rows[0];
+
+  if (new Date(session.expires_at) < new Date()) {
+    throwHttpError(401, "Refresh token is expired");
+  }
+
+  const payload = {
+    sub: session.user_id,
+  };
+
+  const newAccessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: "10m",
   });
 
-  return token;
+  return newAccessToken;
 };
