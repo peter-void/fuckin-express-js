@@ -1,5 +1,6 @@
 import express from "express";
 import todoRoutes from "./routes/todo-routes.js";
+import authRoutes from "./routes/auth-routes.js";
 import todoMiddleware from "./middlewares/logger.js";
 import { errorMiddleware } from "./middlewares/error.js";
 import "dotenv/config";
@@ -17,6 +18,7 @@ app.get("/health", async (req, res) => {
 app.use("/todos", todoMiddleware);
 
 app.use("/todos", todoRoutes);
+app.use("/auth", authRoutes);
 
 app.use(errorMiddleware);
 

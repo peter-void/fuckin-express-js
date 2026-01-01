@@ -4,6 +4,7 @@ import { pool } from "../db/index.js";
 
 export const getTodosService = async ({ limit, offset }) => {
   const query = `
+    EXPLAIN ANALYZE
     SELECT * FROM TODOS
     ORDER BY created_at DESC
     LIMIT $1 OFFSET $2
