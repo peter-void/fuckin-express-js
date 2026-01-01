@@ -1,15 +1,17 @@
-import { todos } from "../data/todo.js";
 import {
   createNewTodoService,
   deleteTodoService,
   getTodoByIdService,
+  getTodosService,
   updateTodoService,
 } from "../services/todo-service.js";
 import { asyncHandler } from "../utils/async-handler.js";
 
-export const getTodos = (req, res) => {
-  return res.status(200).json({ data: todos });
-};
+export const getTodos = asyncHandler(async (req, res) => {
+  const result = await getTodosService();
+
+  return res.status(200).json({ data: result });
+});
 
 export const getSingleTodo = asyncHandler(async (req, res) => {
   const todo = await getTodoByIdService(Number(req.params.id));

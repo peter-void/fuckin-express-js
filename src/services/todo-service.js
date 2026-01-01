@@ -1,5 +1,11 @@
 import { todos } from "../data/todo.js";
 import { throwHttpError } from "../utils/http-error.js";
+import { pool } from "../db/index.js";
+
+export const getTodosService = async () => {
+  const result = await pool.query("SELECT * FROM todos ORDER BY id DESC");
+  return result;
+};
 
 export const getTodoByIdService = async (id) => {
   const existingTodo = todos.find((todo) => todo.id === id);
@@ -18,16 +24,15 @@ export const createNewTodoService = async (body) => {
 
   const { title, status } = body;
 
-  const generateID = (todos[todos.length - 1]?.id ?? 0) + 1;
-  const newTodo = {
-    id: generateID,
-    title,
-    status,
-  };
+  const query = `
+    INSERT INTO todos (title, status)
+    VALUES ($1, $2)
+    RETURNING *
+  `;
 
-  todos.push(newTodo);
+  const result = await pool.query(query, [title, status]);
 
-  return newTodo;
+  return result;
 };
 
 export const updateTodoService = async (id, body) => {
