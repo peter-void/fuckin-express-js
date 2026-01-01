@@ -26,8 +26,9 @@ export const getSingleTodo = asyncHandler(async (req, res) => {
 
 export const createNewTodo = asyncHandler(async (req, res) => {
   const { title, status } = req.body;
+  const userId = req.user.id;
 
-  const newTodo = await createNewTodoService({ title, status });
+  const newTodo = await createNewTodoService(userId, { title, status });
   return res.status(201).json({ data: newTodo });
 });
 

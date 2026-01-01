@@ -28,18 +28,18 @@ export const getTodoByIdService = async (id) => {
   return existingTodo.rows;
 };
 
-export const createNewTodoService = async ({ title, status }) => {
+export const createNewTodoService = async (userId, { title, status }) => {
   if (!title || !status) {
     throwHttpError(400, "Invalid data");
   }
 
   const query = `
-    INSERT INTO todos (title, status)
-    VALUES ($1, $2)
+    INSERT INTO todos (title, status, user_id)
+    VALUES ($1, $2, $3)
     RETURNING *
   `;
 
-  const result = await pool.query(query, [title, status]);
+  const result = await pool.query(query, [title, status, userId]);
 
   return result.rows[0];
 };

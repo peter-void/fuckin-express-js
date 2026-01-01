@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 
 const todoMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log(authHeader);
 
   if (!authHeader) {
     throwHttpError(401, "Unauthorized");
