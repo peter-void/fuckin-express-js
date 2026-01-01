@@ -15,21 +15,22 @@ export const getTodos = asyncHandler(async (req, res) => {
 
 export const getSingleTodo = asyncHandler(async (req, res) => {
   const todo = await getTodoByIdService(Number(req.params.id));
+
   res.json(todo);
 });
 
 export const createNewTodo = asyncHandler(async (req, res) => {
-  const body = req.body;
+  const { title, status } = req.body;
 
-  const newTodo = await createNewTodoService(body);
+  const newTodo = await createNewTodoService({ title, status });
   return res.status(201).json({ data: newTodo });
 });
 
 export const updateTodo = asyncHandler(async (req, res) => {
   const param = req.params.id;
-  const body = req.body;
+  const data = req.body;
 
-  await updateTodoService(Number(param), body);
+  await updateTodoService(Number(param), data);
   res.status(200).json({ message: `ID: ${param} successfully updated` });
 });
 

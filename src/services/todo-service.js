@@ -4,25 +4,27 @@ import { pool } from "../db/index.js";
 
 export const getTodosService = async () => {
   const result = await pool.query("SELECT * FROM todos ORDER BY id DESC");
-  return result;
+  return result.rows;
 };
 
 export const getTodoByIdService = async (id) => {
-  const existingTodo = todos.find((todo) => todo.id === id);
+  const query = `
+    SELECT * FROM todos WHERE id = ($1)
+  `;
+
+  const existingTodo = await pool.query(query, [id]);
 
   if (!existingTodo) {
     throwHttpError(404, "Todo not found");
   }
 
-  return existingTodo;
+  return existingTodo.rows;
 };
 
-export const createNewTodoService = async (body) => {
-  if (!body.title || !body.status) {
+export const createNewTodoService = async ({ title, status }) => {
+  if (!title || !status) {
     throwHttpError(400, "Invalid data");
   }
-
-  const { title, status } = body;
 
   const query = `
     INSERT INTO todos (title, status)
@@ -32,45 +34,37 @@ export const createNewTodoService = async (body) => {
 
   const result = await pool.query(query, [title, status]);
 
-  return result;
+  return result.rows[0];
 };
 
-export const updateTodoService = async (id, body) => {
-  if (!id) {
-    throwHttpError(400, "Id not provided");
-  }
+export const updateTodoService = async (id, { title, status }) => {
+  const query = `
+    UPDATE todos
+    SET title = $1, status = $2
+    WHERE id = $3
+    RETURNING *
+  `;
 
-  if (!body) {
-    throwHttpError(400, "Missing Body");
-  }
+  const result = await pool.query(query, [title, status, id]);
 
-  if (Object.keys(body).length === 0) {
-    throwHttpError(400, "Nothing data");
-  }
-
-  let todoIndex = todos.findIndex((todo) => todo.id === id);
-
-  if (todoIndex === -1) {
+  if (result.rows.length === 0) {
     throwHttpError(404, "Todo not found");
   }
 
-  const { title, status, ...rest } = todos[todoIndex];
-
-  const newUpdatedTodo = {
-    ...rest,
-    title: body.title ?? title,
-    status: body.status ?? status,
-  };
-
-  todos[todoIndex] = newUpdatedTodo;
+  return result.rows[0];
 };
 
 export const deleteTodoService = async (id) => {
-  const getIndex = todos.findIndex((todo) => todo.id === id);
+  const query = `
+  DELETE FROM todos
+  WHERE id = $1
+  `;
 
-  if (getIndex === -1) {
+  const result = await pool.query(query, [id]);
+
+  if (!result.rows.length === 0) {
     throwHttpError(404, "Todo not found");
   }
 
-  todos.splice(getIndex, 1);
+  return result.rows[0];
 };
