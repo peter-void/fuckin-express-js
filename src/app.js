@@ -6,9 +6,26 @@ import { errorMiddleware } from "./middlewares/error.js";
 import "dotenv/config";
 import { pool } from "./db/index.js";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
 
 const app = express();
 
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+        scriptSrc: ["'none'"],
+        styleSrc: ["'none'"],
+        imgSrc: ["'none'"],
+        connectSrc: ["'self'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'none'"],
+        formAction: ["'self'"],
+      },
+    },
+  })
+);
 app.use(cookieParser());
 app.use(express.json());
 
