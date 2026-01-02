@@ -20,7 +20,6 @@ export const login = asyncHandler(async (req, res) => {
       httpOnly: true,
       secure: false,
       sameSite: "strict",
-      path: "/auth/refresh",
     })
     .status(200)
     .json({ accessToken });
@@ -36,4 +35,20 @@ export const refresh = asyncHandler(async (req, res) => {
   const accessToken = await refreshTokenService(refreshToken);
 
   res.json({ accessToken });
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  const refreshToken = req.cookies.refresh_token;
+
+  if (!refreshToken) {
+    return res.sendStatus(204);
+  }
+
+  res.clearCookie("refresh_token", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "strict",
+  });
+
+  res.status(201).json({ message: "Logged out successfully" });
 });

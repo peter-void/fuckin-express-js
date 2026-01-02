@@ -101,3 +101,12 @@ export const refreshTokenService = async (refreshToken) => {
 
   return newAccessToken;
 };
+
+export const logoutService = async (refreshToken) => {
+  const query = `
+  DELETE FROM refresh_token
+  WHERE token = $1
+  `;
+
+  await pool.query(query, [refreshToken]);
+};
